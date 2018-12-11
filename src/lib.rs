@@ -8,9 +8,8 @@
     stmt_expr_attributes,
     uniform_paths
 )]
-// #![no_std] // needed for Box =/
+#![no_std]
 
-extern crate core;
 use core::future as core_future;
 use core::{ffi, fmt, mem, pin, ptr, result, slice, str, task};
 
