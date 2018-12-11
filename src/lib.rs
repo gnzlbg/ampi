@@ -6,7 +6,7 @@
     maybe_uninit,
     pin,
     stmt_expr_attributes,
-    uniform_paths,
+    uniform_paths
 )]
 #![no_std]
 
@@ -23,3 +23,4 @@ pub mod future;
 mod request;
 
 pub mod algs;
+pub mod exec;

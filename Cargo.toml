@@ -10,4 +10,6 @@ libc = "0.2"
 futures-preview = "0.3.0-alpha.10"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.10"
+futures-executor-preview = { version = "0.3.0-alpha.10", path = "../futures-rs/futures-executor" }
+futures-util-preview = { version = "0.3.0-alpha.10", path = "../futures-rs/futures-util" }
+pin-utils = "0.1.0-alpha.3"
