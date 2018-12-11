@@ -1,8 +1,6 @@
 #![feature(libc, await_macro, async_await, futures_api, pin)]
 
 extern crate ampi;
-extern crate futures_executor;
-extern crate futures_util;
 
 use ampi::{algs, comm, env, exec};
 
