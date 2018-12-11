@@ -1,4 +1,4 @@
-#![feature(await_macro, async_await)]
+#![feature(await_macro, async_await, pin)]
 
 extern crate ampi;
 
@@ -9,7 +9,7 @@ fn main() {
     let comm = comm::Comm::world();
     let rank = comm.rank().unwrap();
 
-    let c = async move || {
+    let closure = async move || {
         let rank_sum = await!(algs::all_reduce(rank, comm)).unwrap();
         let mut count = 0_i32;
         let rank_sum1 = loop {
@@ -29,12 +29,11 @@ fn main() {
 
         rank_sum_x2
     };
-    let mut future = c();
-
-    let mut e = exec::Exec::new(&mut future);
+    let mut future = closure();
+    let mut future_pin = unsafe { core::pin::Pin::new_unchecked(&mut future) };
 
     loop {
-        if let Some(v) = e.poll() {
+        if let Some(v) = exec::poll_once(&mut future_pin) {
             println!("Ready! => {}", v);
             break;
         } else {

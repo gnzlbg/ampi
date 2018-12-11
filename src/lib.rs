@@ -1,4 +1,4 @@
-//! Non-blocking MPI wrapper
+//! Asynchronous MPI wrapper
 #![feature(
     async_await,
     arbitrary_self_types,
