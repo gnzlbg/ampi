@@ -11,7 +11,7 @@
 #![no_std]
 
 use core::future as core_future;
-use core::{ffi, fmt, mem, pin, ptr, result, slice, str, task};
+use core::{ffi, fmt, mem, num, pin, ptr, result, slice, str, task};
 
 #[macro_use]
 mod error;

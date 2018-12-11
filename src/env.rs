@@ -12,12 +12,12 @@ impl Mpi {
         };
         r.map(|v| v == 1)
     }
-    pub fn init() -> Result<Mpi> {
+    pub fn init() -> Result<Self> {
         let r: Result<()> = call! {
             MPI_Init(ptr::null_mut(), ptr::null_mut())
         };
         r.map(|_| {
-            let mpi = Mpi;
+            let mpi = Self;
             assert!(
                 Self::is_init().unwrap(),
                 "unexpected failure to initialize the MPI runtime"

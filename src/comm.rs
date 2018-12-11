@@ -14,14 +14,14 @@ impl Comm {
     }
 
     /// Get the rank of the current process in the communicator.
-    pub fn rank(&self) -> Result<u32> {
+    pub fn rank(self) -> Result<u32> {
         debug_assert!(crate::env::Mpi::is_init().unwrap());
         call! {
             MPI_Comm_rank(self.raw(), r.as_mut_ptr()) => r: libc::c_int
         }
     }
 
-    pub fn raw(&self) -> mpi_sys::MPI_Comm {
+    pub fn raw(self) -> mpi_sys::MPI_Comm {
         self.0
     }
 }

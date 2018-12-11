@@ -54,7 +54,7 @@ where
         if self.state.request.is_null() {
             // really:
             match &mut *self {
-                Future {
+                Self {
                     ref mut state,
                     ref function,
                 } => {
