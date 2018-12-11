@@ -1,6 +1,7 @@
 language: rust
 sudo: false
 rust: nightly
+dist: xenial
 
 matrix:
   fast_finish: true
@@ -8,7 +9,7 @@ matrix:
     - name: "Linux"
       addons: 
         apt:
-          packages: ["libopenmpi-dev", "openmpi-bin"]
+          packages: ["mpich", "libmpich-dev"]
 
 install: cargo install cargo-mpirun
 script: cargo mpirun --verbose -n 4 --example test
