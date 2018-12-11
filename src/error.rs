@@ -33,7 +33,8 @@ pub type Result<T> = result::Result<T, Err>;
 
 impl Err {
     pub fn new(err: libc::c_int) -> Option<Self> {
-        assert_eq!(mpi_sys::MPI_SUCCESS, 0);
+        // check that MPI_SUCCESS is a `const` with value zero:
+        const _X: [(); 0] = [(); 0 - (!(mpi_sys::MPI_SUCCESS == 0) as usize)];
         if err as libc::c_uint == mpi_sys::MPI_SUCCESS {
             None
         } else {

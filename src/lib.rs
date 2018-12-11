@@ -6,7 +6,8 @@
     maybe_uninit,
     pin,
     stmt_expr_attributes,
-    uniform_paths
+    uniform_paths,
+    const_fn
 )]
 #![no_std]
 
