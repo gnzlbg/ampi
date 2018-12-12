@@ -6,18 +6,18 @@ use crate::Result;
 pub struct Request(mpi_sys::MPI_Request);
 
 impl Request {
-    /// Create new null MPI request.
-    pub fn null() -> Self {
-        Self(unsafe { mpi_sys::RSMPI_REQUEST_NULL })
-    }
-
     /// Is the MPI request null ?
     pub fn is_null(&self) -> bool {
-        *self == Self::null()
+        *self == Self::default()
     }
 
     /// Tests whether the request is finished
+    ///
+    /// # Panics
+    ///
+    /// If `self.is_null()`.
     pub fn test(&mut self) -> Result<bool> {
+        assert!(!self.is_null());
         let ignore = unsafe { mpi_sys::RSMPI_STATUS_IGNORE };
         let r: Result<libc::c_int> = call! {
             MPI_Test(
@@ -43,5 +43,12 @@ impl Drop for Request {
             MPI_Request_free(&mut self.0 as *mut _) => r: ()
         };
         r.expect("failed to free request");
+    }
+}
+
+impl Default for Request {
+    /// Create new null MPI request.
+    fn default() -> Self {
+        Self(unsafe { mpi_sys::RSMPI_REQUEST_NULL })
     }
 }

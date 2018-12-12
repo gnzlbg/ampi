@@ -1,52 +1,52 @@
 //! MPI Rank
 
 use crate::{
-    fmt,
+    fmt, marker,
     ops::{Deref, DerefMut},
 };
 
 /// MPI Rank
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Rank(libc::c_uint);
+pub struct Rank<'s>(libc::c_uint, marker::PhantomData<&'s ()>);
 
-impl fmt::Display for Rank {
+impl<'a> fmt::Display for Rank<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl Rank {
+impl<'a> Rank<'a> {
     pub const fn new(x: libc::c_uint) -> Self {
-        Self(x)
+        Self(x, marker::PhantomData)
     }
 }
 
-impl From<libc::c_uint> for Rank {
+impl<'a> From<libc::c_uint> for Rank<'a> {
     fn from(x: libc::c_uint) -> Self {
-        Self(x)
+        Self(x, marker::PhantomData)
     }
 }
 
-impl From<Rank> for libc::c_uint {
-    fn from(x: Rank) -> Self {
+impl<'a> From<Rank<'a>> for libc::c_uint {
+    fn from(x: Rank<'a>) -> Self {
         x.0
     }
 }
 
-impl From<libc::c_int> for Rank {
+impl<'a> From<libc::c_int> for Rank<'a> {
     fn from(x: libc::c_int) -> Self {
-        Self(x as _)
+        Self(x as _, marker::PhantomData)
     }
 }
 
-impl Deref for Rank {
+impl<'a> Deref for Rank<'a> {
     type Target = libc::c_uint;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for Rank {
+impl<'a> DerefMut for Rank<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

@@ -7,7 +7,7 @@ pub struct Comm(mpi_sys::MPI_Comm);
 
 impl Comm {
     /// Get the rank of the current process in the communicator.
-    pub fn rank(&self) -> Result<Rank> {
+    pub fn rank<'s>(&'s self) -> Result<Rank<'s>> {
         let r = call! {
             MPI_Comm_rank(*self.raw(), r.as_mut_ptr()) => r: libc::c_int
         };
@@ -25,7 +25,7 @@ impl Comm {
     }
 
     /// Last rank in the communicator
-    pub fn last(&self) -> Result<Rank> {
+    pub fn last<'s>(&'s self) -> Result<Rank<'s>> {
         let r = call! {
             MPI_Comm_size(*self.raw(), r.as_mut_ptr()) => r: libc::c_int
         };
@@ -39,8 +39,14 @@ impl Comm {
         };
         r.map(|r| Self(r))
     }
+
+    pub fn root<'s>(&'s self) -> Rank<'s> {
+        Rank::new(0)
+    }
 }
 
-pub const fn root() -> Rank {
-    Rank::new(0)
+impl Default for Comm {
+    fn default() -> Self {
+        Self(unsafe { mpi_sys::RSMPI_COMM_NULL })
+    }
 }

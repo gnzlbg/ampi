@@ -2,77 +2,66 @@
 
 use crate::{
     core_future,
-    mem::{self, MaybeUninit},
     pin::{Pin, Unpin},
     request::Request,
     task::{LocalWaker, Poll},
     Result,
 };
 
-pub struct State<I, O> {
-    pub input: I,
-    pub output: MaybeUninit<O>,
-    pub request: Request,
-}
-
 /// MPI Future
-pub struct Future<I, O, F>
+pub struct Future<S, F>
 where
-    F: Fn(&mut State<I, O>) -> Result<()>,
+    F: Fn(&mut S, &mut Request) -> Result<()>,
 {
-    pub state: State<I, O>,
+    pub state: S,
+    pub request: Request,
     pub function: F,
 }
 
-impl<I, O, F> Future<I, O, F>
+impl<S, F> Future<S, F>
 where
-    F: Fn(&mut State<I, O>) -> Result<()>,
+    F: Fn(&mut S, &mut Request) -> Result<()>,
 {
-    pub fn new(input: I, function: F) -> Self {
+    pub fn new(state: S, function: F) -> Self {
         Self {
-            state: State {
-                input,
-                output: MaybeUninit::uninitialized(),
-                request: Request::null(),
-            },
+            state,
+            request: Request::default(),
             function,
         }
     }
 }
 
-impl<I, O, F> Unpin for Future<I, O, F> where
-    F: Fn(&mut State<I, O>) -> Result<()>
+impl<S, F> Unpin for Future<S, F> where
+    F: Fn(&mut S, &mut Request) -> Result<()>
 {
 }
 
-impl<I, O, F> core_future::Future for Future<I, O, F>
+impl<S, F> core_future::Future for Future<S, F>
 where
-    F: Fn(&mut State<I, O>) -> Result<()>,
+    F: Fn(&mut S, &mut Request) -> Result<()>,
 {
-    type Output = Result<O>;
+    type Output = Result<()>;
     fn poll(mut self: Pin<&mut Self>, lw: &LocalWaker) -> Poll<Self::Output> {
-        if self.state.request.is_null() {
-            // really:
+        if self.request.is_null() {
             match &mut *self {
                 Self {
                     ref mut state,
+                    ref mut request,
                     ref function,
                 } => {
-                    if let Err(e) = function(state) {
+                    if let Err(e) = function(state, request) {
                         return Poll::Ready(Err(e));
                     }
                 }
             }
-            assert!(!self.state.request.is_null());
+            assert!(!self.request.is_null());
         }
 
-        match self.state.request.test() {
+        match self.request.test() {
             Ok(r) => {
                 if r {
-                    let mut v = MaybeUninit::uninitialized();
-                    mem::swap(&mut v, &mut self.state.output);
-                    assert!(self.state.request.is_null());
-                    Poll::Ready(Ok(unsafe { v.into_inner() }))
+                    assert!(self.request.is_null());
+                    Poll::Ready(Ok(()))
                 } else {
                     lw.wake();
                     Poll::Pending
