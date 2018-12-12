@@ -11,16 +11,22 @@
 #![no_std]
 
 use core::future as core_future;
-use core::{ffi, fmt, mem, num, pin, ptr, result, slice, str, task};
+use core::{ffi, fmt, mem, num, ops, pin, ptr, result, slice, str, task};
 
 #[macro_use]
 mod error;
 pub use error::{Err, Result};
 
-pub mod comm;
-pub mod env;
+mod comm;
+pub use comm::{root, Comm};
+
+mod env;
+pub use env::Env;
+
 pub mod future;
 mod request;
 
-pub mod algs;
+pub mod algorithms;
 pub mod exec;
+mod rank;
+pub use rank::Rank;

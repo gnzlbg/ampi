@@ -11,6 +11,7 @@ impl Request {
         Self(unsafe { mpi_sys::RSMPI_REQUEST_NULL })
     }
 
+    /// Is the MPI request null ?
     pub fn is_null(&self) -> bool {
         *self == Self::null()
     }
@@ -28,7 +29,19 @@ impl Request {
         r.map(|v| v == 1)
     }
 
-    pub fn ptr_mut(&mut self) -> *mut mpi_sys::MPI_Request {
-        &mut self.0 as *mut _
+    pub fn raw(&mut self) -> &mut mpi_sys::MPI_Request {
+        &mut self.0
+    }
+}
+
+impl Drop for Request {
+    fn drop(&mut self) {
+        if self.0 == unsafe { mpi_sys::RSMPI_REQUEST_NULL } {
+            return;
+        }
+        let r: Result<()> = call! {
+            MPI_Request_free(&mut self.0 as *mut _) => r: ()
+        };
+        r.expect("failed to free request");
     }
 }

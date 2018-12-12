@@ -1,10 +1,10 @@
 //! MPI Environment
 
-use crate::{ptr, Result};
+use crate::{ptr, Comm, Result};
 
-pub struct Mpi;
+pub struct Env(());
 
-impl Mpi {
+impl Env {
     /// Has the MPI runtime been initialized ?
     pub fn is_init() -> Result<bool> {
         let r: Result<libc::c_int> = call! {
@@ -17,7 +17,7 @@ impl Mpi {
             MPI_Init(ptr::null_mut(), ptr::null_mut())
         };
         r.map(|_| {
-            let mpi = Self;
+            let mpi = Self(());
             assert!(
                 Self::is_init().unwrap(),
                 "unexpected failure to initialize the MPI runtime"
@@ -25,9 +25,14 @@ impl Mpi {
             mpi
         })
     }
+
+    /// Returns the `MPI_COMM_WORLD` communicator.
+    pub fn world(&self) -> Comm {
+        unsafe { Comm::from_raw(mpi_sys::RSMPI_COMM_WORLD) }
+    }
 }
 
-impl Drop for Mpi {
+impl Drop for Env {
     fn drop(&mut self) {
         let r: Result<()> = call! {
             MPI_Finalize()
