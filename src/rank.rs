@@ -6,7 +6,7 @@ use crate::{
 };
 
 /// MPI Rank
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rank<'s>(libc::c_uint, marker::PhantomData<&'s ()>);
 
 impl<'a> fmt::Display for Rank<'a> {
@@ -33,6 +33,12 @@ impl<'a> From<Rank<'a>> for libc::c_uint {
     }
 }
 
+impl<'a> From<Rank<'a>> for libc::c_int {
+    fn from(x: Rank<'a>) -> Self {
+        x.0 as _
+    }
+}
+
 impl<'a> From<libc::c_int> for Rank<'a> {
     fn from(x: libc::c_int) -> Self {
         Self(x as _, marker::PhantomData)
@@ -49,5 +55,11 @@ impl<'a> Deref for Rank<'a> {
 impl<'a> DerefMut for Rank<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+impl<'a> fmt::Debug for Rank<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

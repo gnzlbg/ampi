@@ -43,6 +43,11 @@ impl Comm {
     pub fn root<'s>(&'s self) -> Rank<'s> {
         Rank::new(0)
     }
+
+    /// Is this rank the root rank of the communicator ?
+    pub fn is_root(&self) -> Result<bool> {
+        Ok(self.rank()? == self.root())
+    }
 }
 
 impl Default for Comm {

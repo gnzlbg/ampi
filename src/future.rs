@@ -56,7 +56,6 @@ where
             }
             assert!(!self.request.is_null());
         }
-
         match self.request.test() {
             Ok(r) => {
                 if r {
